@@ -5,8 +5,9 @@ const { signToken } = require("../helpers/jwt");
 class AuthController {
   static async register(req, res, next) {
     try {
-      const { email, password, phoneNumber, fullName, profilePict } = req.body;
-      const user = await User.create({ email, password, phoneNumber, fullName, profilePict });
+      console.log(req.body, '<<< bodyß');
+      const { email, password, fullName, imgUrl } = req.body;
+      const user = await User.create({ email, password, fullName, imgUrl});
 
       res.status(201).json({
         message: "Success create new user",
@@ -39,9 +40,9 @@ class AuthController {
         id: user.id,
         email: user.email
       };
-      console.log(payload);
-
+      
       const token = signToken(payload);
+      console.log(token, '<<<<');
 
       res.status(200).json({
         token,
@@ -52,42 +53,42 @@ class AuthController {
     }
   }
 
-  static async googleLogin(req, res, next) {
-    try {
-      const { token } = req.headers;
-      const client = new OAuth2Client();
+  // static async googleLogin(req, res, next) {
+  //   try {
+  //     const { token } = req.headers;
+  //     const client = new OAuth2Client();
 
-      const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
+  //     const ticket = await client.verifyIdToken({
+  //       idToken: token,
+  //       audience: process.env.GOOGLE_CLIENT_ID,
+  //     });
 
-      const payload = ticket.getPayload();
+  //     const payload = ticket.getPayload();
 
-      const [user, created] = await User.findOrCreate({
-        where: {
-          email: payload.email,
-        },
-        defaults: {
-          fullName: payload.name,
-          email: payload.email,
-          password: "password_google",
-          profilePict: "this is your profile pict",
-          phoneNumber: "https://static.vecteezy.com/system/resources/thumbnails/020/911/740/small/user-profile-icon-profile-avatar-user-icon-male-icon-face-icon-profile-icon-free-png.png",
-        },
-        hooks: false,
-      });
+  //     const [user, created] = await User.findOrCreate({
+  //       where: {
+  //         email: payload.email,
+  //       },
+  //       defaults: {
+  //         fullName: payload.name,
+  //         email: payload.email,
+  //         password: "password_google",
+  //         profilePict: "this is your profile pict",
+  //         phoneNumber: "https://static.vecteezy.com/system/resources/thumbnails/020/911/740/small/user-profile-icon-profile-avatar-user-icon-male-icon-face-icon-profile-icon-free-png.png",
+  //       },
+  //       hooks: false,
+  //     });
 
-      const access_token = signToken({
-        id: user.id,
-        email: user.email,
-      });
+  //     const access_token = signToken({
+  //       id: user.id,
+  //       email: user.email,
+  //     });
 
-      res.status(200).json({ access_token });
-    } catch (error) {
-      next(error);
-    }
-  }
+  //     res.status(200).json({ access_token });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
 }
 
 module.exports = AuthController;

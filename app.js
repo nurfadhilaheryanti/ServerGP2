@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production"){
+  require('dotenv').config()
+}
+
 const express = require("express")
 const http = require("http")
 const app = express()
@@ -10,6 +14,9 @@ const io = require("socket.io")(server, {
 	}
 })
 
+app.use(express.urlencoded({extended: true}))
+app.use(express.json())
+app.use(router)
 
 io.on("connection", (socket) => {
 	socket.emit("me", socket.id)
@@ -27,6 +34,6 @@ io.on("connection", (socket) => {
 	})
 })
 
-app.use(router)
+
 
 server.listen(5001, () => console.log("server is running on port 5001"))
